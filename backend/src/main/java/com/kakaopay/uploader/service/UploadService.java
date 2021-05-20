@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -29,7 +30,7 @@ public class UploadService {
 
     private final CountManager countManager;
 
-    public CountDto savePerson(InputStream is, String uuid) {
+    public CountDto savePerson(MultipartFile is, String uuid) {
         CountDto countDto = countManager.getCount(uuid);
 
         if (countDto == null) {
@@ -38,7 +39,7 @@ public class UploadService {
 
         List<Person> personList = new ArrayList<>();
         try(BufferedReader br = new BufferedReader(
-                new InputStreamReader(is, StandardCharsets.UTF_8))) {
+                new InputStreamReader(is.getInputStream(), StandardCharsets.UTF_8))) {
 
             CSVReader reader = new CSVReaderBuilder(br).withSkipLines(1).build();
             String[] data;

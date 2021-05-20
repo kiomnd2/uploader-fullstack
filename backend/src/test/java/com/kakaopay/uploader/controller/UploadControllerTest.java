@@ -11,6 +11,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
@@ -36,7 +37,7 @@ class UploadControllerTest {
 
     @Test
     void request_uuid_success() throws Exception {
-        mockMvc.perform(get("/uuid")
+        mockMvc.perform(get("/api/uuid")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -51,11 +52,11 @@ class UploadControllerTest {
         String uploadUUID = uploadService.createUploadUUID();
 
         byte[] bytes = Files.readAllBytes(
-                Paths.get("/Users/kiomnd2/IdeaProjects/file-upload/backend/src/test/resources/dataset_success.csv"));
+                Paths.get("./src/test/resources/dataset_success.csv"));
         MockMultipartFile file = new MockMultipartFile("file", bytes);
-        mockMvc.perform(multipart("/upload")
+        mockMvc.perform(multipart("/api/upload")
                 .file(file)
-                .header("X-UUID", uploadUUID)
+                .header("X-UPLOAD-UUID", uploadUUID)
                 .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -72,11 +73,11 @@ class UploadControllerTest {
         String uploadUUID = uploadService.createUploadUUID();
 
         byte[] bytes = Files.readAllBytes(
-                Paths.get("/Users/kiomnd2/IdeaProjects/file-upload/backend/src/test/resources/dataset_fail.csv"));
+                Paths.get("./src/test/resources/dataset_fail.csv"));
         MockMultipartFile file = new MockMultipartFile("file", bytes);
-        mockMvc.perform(multipart("/upload")
+        mockMvc.perform(multipart("/api/upload")
                 .file(file)
-                .header("X-UUID", uploadUUID)
+                .header("X-UPLOAD-UUID", uploadUUID)
                 .contentType(MediaType.MULTIPART_FORM_DATA))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -92,8 +93,8 @@ class UploadControllerTest {
         String uuid = UUID.randomUUID().toString();
 
 
-        mockMvc.perform(get("/inquire")
-                .param("uuid", uuid)
+        mockMvc.perform(get("/api/inquire")
+                .header("X-UPLOAD-UUID", uuid)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -107,14 +108,15 @@ class UploadControllerTest {
         String uploadUUID = uploadService.createUploadUUID();
 
         byte[] bytes = Files.readAllBytes(
-                Paths.get("/Users/kiomnd2/IdeaProjects/file-upload/backend/src/test/resources/dataset_success.csv"));
+                Paths.get("./src/test/resources/dataset_success.csv"));
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 
-        CountDto countDto = uploadService.savePerson(byteArrayInputStream, uploadUUID);
+        MockMultipartFile file = new MockMultipartFile("file", byteArrayInputStream);
+        CountDto countDto = uploadService.savePerson(file, uploadUUID);
 
 
-        mockMvc.perform(get("/inquire")
-                .param("uuid", uploadUUID)
+        mockMvc.perform(get("/api/inquire")
+                .header("X-UPLOAD-UUID", uploadUUID)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
