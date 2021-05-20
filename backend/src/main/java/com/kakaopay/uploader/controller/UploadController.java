@@ -28,10 +28,10 @@ public class UploadController {
         return ResponseEntity.ok().body(UploadResponse.success(uuid));
     }
 
-    @PostMapping(value = "/api/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UploadResponse<CountDto>> upload(@RequestHeader("X-UPLOAD-UUID") String uuid
-            , MultipartHttpServletRequest request) {
-        MultipartFile file = request.getFile("file");
+    @PostMapping(value = "/api/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UploadResponse<CountDto>> upload(@RequestHeader("X-UPLOAD-UUID") String uuid,
+                                                           @RequestParam("file") MultipartFile file) {
         CountDto countDto = uploadService.savePerson(file, uuid);
         return ResponseEntity.ok().body(UploadResponse.success(countDto));
     }

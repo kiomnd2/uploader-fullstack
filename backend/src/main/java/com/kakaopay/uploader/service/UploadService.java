@@ -31,17 +31,14 @@ public class UploadService {
     private final CountManager countManager;
 
     public CountDto savePerson(MultipartFile is, String uuid) {
-        CountDto countDto = countManager.getCount(uuid);
-
-        if (countDto == null) {
-            throw new InvalidRequestException();
-        }
+        CountDto countDto = getCountDto(uuid);
 
         List<Person> personList = new ArrayList<>();
         try(BufferedReader br = new BufferedReader(
                 new InputStreamReader(is.getInputStream(), StandardCharsets.UTF_8))) {
 
             CSVReader reader = new CSVReaderBuilder(br).withSkipLines(1).build();
+            System.out.println("test :::::::: " + reader.getLinesRead());
             String[] data;
             while ((data = reader.readNext()) != null) {
                 if (!validData(data)) {
@@ -82,7 +79,12 @@ public class UploadService {
     }
 
     public CountDto getCountDto(String uuid) {
-        return countManager.getCount(uuid);
+        CountDto countDto = countManager.getCount(uuid);
+        if (countDto == null) {
+            throw new InvalidRequestException();
+        }
+
+        return countDto;
     }
 
     private boolean validData(String[] data) {
