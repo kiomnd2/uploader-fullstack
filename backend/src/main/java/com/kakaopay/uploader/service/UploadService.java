@@ -8,19 +8,20 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 @Service
@@ -38,7 +39,6 @@ public class UploadService {
                 new InputStreamReader(is.getInputStream(), StandardCharsets.UTF_8))) {
 
             CSVReader reader = new CSVReaderBuilder(br).withSkipLines(1).build();
-            System.out.println("test :::::::: " + reader.getLinesRead());
             String[] data;
             while ((data = reader.readNext()) != null) {
                 if (!validData(data)) {
@@ -52,22 +52,26 @@ public class UploadService {
                             .build();
 
                     personList.add(person);
-                }
 
-                if (personList.size() % 100 == 0) {
-                    personRepository.saveAll(personList);
-                    countDto.addSuccessCount(personList.size());
-                    personList.clear();
+                    try {
+                        if (personList.size() % 100 == 0) {
+                            personRepository.saveAll(personList);
+                            countDto.addSuccessCount(personList.size());
+                            personList.clear();
+                        }
+                    } catch (DataIntegrityViolationException e) {
+                        countDto.addFailCount(personList.size());
+                        personList.clear();
+                    }
                 }
             }
             // 나머지 데이터 insert
-            countDto.addSuccessCount(personList.size());
             personRepository.saveAll(personList);
-
-        } catch (Exception e) {
+            countDto.addSuccessCount(personList.size());
+        } catch (IOException e) {
+            throw new InvalidRequestException();
+        } catch (DataIntegrityViolationException e) {
             countDto.addFailCount(personList.size());
-            personList.clear();
-            e.printStackTrace();
         }
         return countDto;
     }

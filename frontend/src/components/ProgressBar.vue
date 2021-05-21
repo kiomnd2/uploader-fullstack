@@ -1,14 +1,24 @@
 <template>
   <div>
-    <b-progress :value="value" :max="max" show-progress animated></b-progress>
+    <b-progress
+      :value="progress"
+      :max="max"
+      show-progress
+      animated
+    ></b-progress>
     <b-progress class="mt-2" :max="max" show-value>
       <b-progress-bar
-        :value="value * (6 / 10)"
+        :value="
+          Math.floor((successCount / (failCount + successCount)) * progress)
+        "
         variant="success"
       ></b-progress-bar>
       <b-progress-bar
-        :value="value * (2.5 / 10)"
-        variant="warning"
+        :value="
+          progress -
+          Math.floor((successCount / (failCount + successCount)) * progress)
+        "
+        variant="danger"
       ></b-progress-bar>
     </b-progress>
   </div>
@@ -17,13 +27,16 @@
 <script>
 export default {
   name: 'ProgressBar',
+  props: {
+    progress: Number,
+    successCount: Number,
+    failCount: Number,
+  },
   data() {
     return {
-      value: 45,
       max: 100,
     };
   },
-  methods: {},
 };
 </script>
 
