@@ -20,6 +20,14 @@ public class CountManager {
         return countMap.get(uuid);
     }
 
+    public void deleteCount(String uuid) {
+        countMap.remove(uuid);
+    }
+
+    public void clear() {
+        countMap.clear();
+    }
+
 
 
 }

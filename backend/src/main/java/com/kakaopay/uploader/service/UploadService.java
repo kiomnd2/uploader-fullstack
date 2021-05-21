@@ -4,10 +4,14 @@ import com.kakaopay.uploader.domain.Person;
 import com.kakaopay.uploader.dto.CountDto;
 import com.kakaopay.uploader.exception.InvalidRequestException;
 import com.kakaopay.uploader.repository.PersonRepository;
+import com.kakaopay.uploader.util.ValidateUtil;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.UnexpectedRollbackException;
@@ -22,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Slf4j
 @Service
 public class UploadService {
@@ -41,7 +45,7 @@ public class UploadService {
             CSVReader reader = new CSVReaderBuilder(br).withSkipLines(1).build();
             String[] data;
             while ((data = reader.readNext()) != null) {
-                if (!validData(data)) {
+                if (!ValidateUtil.validData(data)) {
                     countDto.addFailCount(1);
                 } else {
                     Person person = Person.builder()
@@ -73,7 +77,10 @@ public class UploadService {
         } catch (DataIntegrityViolationException e) {
             countDto.addFailCount(personList.size());
         }
-        return countDto;
+
+        CountDto cloneCountDto = countDto.clone();
+        countManager.deleteCount(uuid);
+        return cloneCountDto;
     }
 
     public String createUploadUUID() {
@@ -91,15 +98,4 @@ public class UploadService {
         return countDto;
     }
 
-    private boolean validData(String[] data) {
-        if (data.length != 4) {
-            return false;
-        }
-        for (String col : data) {
-            if (col == null) {
-                return false;
-            }
-        }
-        return true;
-    }
 }

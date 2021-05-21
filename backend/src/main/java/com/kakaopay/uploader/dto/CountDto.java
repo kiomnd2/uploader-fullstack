@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public class CountDto {
+public class CountDto implements Cloneable{
 
     private int successCount;
 
@@ -17,6 +17,16 @@ public class CountDto {
 
     public void addFailCount(int count) {
         this.failCount += count;
+    }
+
+    public CountDto clone() {
+        CountDto countDto = null;
+        try{
+            countDto = (CountDto) super.clone();
+        } catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return countDto;
     }
 
 }
