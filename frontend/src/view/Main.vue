@@ -6,14 +6,10 @@
       :options="dropzoneOptions"
       @vdropzone-drop="onFileDropHandler"
       @vdropzone-success="onUploadSuccessHandler"
+      @vdropzone-complete="onUploadCompleteHandler"
       @vdropzone-error="onUploadErrorHandler"
       @vdropzone-upload-progress="onUploadProgressHandler"
     ></VueDropzone>
-
-    <div class="my-2">
-      <b-button @click="fileUpload">Upload</b-button>
-    </div>
-
     <ProgressBar
       :progress="progress.upload"
       :successCount="progress.success"
@@ -51,6 +47,7 @@ export default {
         chunkSize: 1000000,
         maxFilesize: 10,
         maxFiles: 1,
+        parallelUploads: 1,
         autoProcessQueue: false,
         acceptedFiles: '.csv',
       },
@@ -58,11 +55,8 @@ export default {
   },
   methods: {
     async fileUpload() {
-      if (this.$refs.dropzone.getAcceptedFiles() < 1) {
-        alert('업로드 할 수 없습니다.');
-        return;
-      }
-
+      this.clearCount();
+      this.$refs.dropzone.disable();
       try {
         this.uuid = await UploadApi.generateUploadUUID();
         this.$refs.dropzone.setOption('headers', {
@@ -86,7 +80,6 @@ export default {
         });
       }
     },
-
     onFileDropHandler() {
       if (
         this.$refs.dropzone.getAcceptedFiles().length >= 1 ||
@@ -94,6 +87,7 @@ export default {
       ) {
         this.$refs.dropzone.removeAllFiles();
       }
+      this.fileUpload();
     },
 
     onUploadProgressHandler(file, progress) {
@@ -111,6 +105,9 @@ export default {
       this.clearCount();
     },
 
+    onUploadCompleteHandler() {
+      this.$refs.dropzone.enable();
+    },
     startPollingTimer() {
       this.interval = setInterval(async () => {
         const info = await UploadApi.getUploadStatus(this.uuid);
