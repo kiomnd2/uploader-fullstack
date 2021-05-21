@@ -2,7 +2,9 @@ package com.kakaopay.uploader.controller;
 
 import com.kakaopay.uploader.code.Codes;
 import com.kakaopay.uploader.dto.CountDto;
+import com.kakaopay.uploader.repository.PersonRepository;
 import com.kakaopay.uploader.service.UploadService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,7 +13,6 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
@@ -34,6 +35,14 @@ class UploadControllerTest {
 
     @Autowired
     UploadService uploadService;
+
+    @Autowired
+    PersonRepository personRepository;
+
+    @BeforeEach
+    void beforeEach() {
+        personRepository.deleteAll();
+    }
 
     @Test
     void request_uuid_success() throws Exception {
@@ -62,8 +71,7 @@ class UploadControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value(Codes.S0000.code))
                 .andExpect(jsonPath("message").value(Codes.S0000.desc))
-                .andExpect(jsonPath("body.totalCount").value(101))
-                .andExpect(jsonPath("body.successCount").value(101));
+                .andExpect(jsonPath("body.successCount").value(1));
 
     }
 
@@ -83,7 +91,6 @@ class UploadControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value(Codes.S0000.code))
                 .andExpect(jsonPath("message").value(Codes.S0000.desc))
-                .andExpect(jsonPath("body.totalCount").value(2))
                 .andExpect(jsonPath("body.successCount").value(1))
                 .andExpect(jsonPath("body.failCount").value(1));
     }
@@ -97,8 +104,8 @@ class UploadControllerTest {
                 .header("X-UPLOAD-UUID", uuid)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("body").isEmpty());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(Codes.E2000.code));
     }
 
 
@@ -120,9 +127,8 @@ class UploadControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("body.totalCount").value(101))
-                .andExpect(jsonPath("body.successCount").value(101))
-                .andExpect(jsonPath("body.failCount").value(0));
+                .andExpect(jsonPath("body.successCount").value(countDto.getSuccessCount()))
+                .andExpect(jsonPath("body.failCount").value(countDto.getFailCount()));
 
     }
 
