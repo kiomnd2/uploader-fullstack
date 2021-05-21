@@ -1,8 +1,10 @@
 package com.kakaopay.uploader.controller;
 
 import com.kakaopay.uploader.code.Codes;
+import com.kakaopay.uploader.domain.Person;
 import com.kakaopay.uploader.dto.CountDto;
 import com.kakaopay.uploader.repository.PersonRepository;
+import com.kakaopay.uploader.service.CountManager;
 import com.kakaopay.uploader.service.UploadService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,9 +42,13 @@ class UploadControllerTest {
     @Autowired
     PersonRepository personRepository;
 
+    @Autowired
+    CountManager countManager;
+
     @BeforeEach
     void beforeEach() {
-        personRepository.deleteAll();
+        countManager.clear();
+        personRepository.deleteAllInBatch();
     }
 
     @Test
@@ -71,13 +78,37 @@ class UploadControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("code").value(Codes.S0000.code))
                 .andExpect(jsonPath("message").value(Codes.S0000.desc))
-                .andExpect(jsonPath("body.successCount").value(1));
+                .andExpect(jsonPath("body.successCount").value(101));
 
     }
 
+    @Test
+    void request_upload_duplicate_fail() throws Exception {
+
+        String uploadUUID = uploadService.createUploadUUID();
+
+        byte[] bytes = Files.readAllBytes(
+                Paths.get("./src/test/resources/dataset_success.csv"));
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
+
+        MockMultipartFile file = new MockMultipartFile("file", byteArrayInputStream);
+        CountDto countDto = uploadService.savePerson(file, uploadUUID);
+
+
+        mockMvc.perform(multipart("/api/upload")
+                .file(file)
+                .header("X-UPLOAD-UUID", uploadUUID)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(Codes.E2000.code))
+                .andExpect(jsonPath("message").value(Codes.E2000.desc));
+
+    }
 
     @Test
     void request_upload_fail() throws Exception {
+
         String uploadUUID = uploadService.createUploadUUID();
 
         byte[] bytes = Files.readAllBytes(
@@ -110,7 +141,7 @@ class UploadControllerTest {
 
 
     @Test
-    void request_inquire_get_count() throws Exception {
+    void request_get_count_fail() throws Exception {
 
         String uploadUUID = uploadService.createUploadUUID();
 
@@ -126,10 +157,8 @@ class UploadControllerTest {
                 .header("X-UPLOAD-UUID", uploadUUID)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("body.successCount").value(countDto.getSuccessCount()))
-                .andExpect(jsonPath("body.failCount").value(countDto.getFailCount()));
-
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("code").value(Codes.E2000.code));
     }
 
 }
