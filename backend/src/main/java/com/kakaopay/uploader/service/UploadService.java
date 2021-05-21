@@ -78,9 +78,7 @@ public class UploadService {
             countDto.addFailCount(personList.size());
         }
 
-        CountDto cloneCountDto = countDto.clone();
-        countManager.deleteCount(uuid);
-        return cloneCountDto;
+        return countDto;
     }
 
     public String createUploadUUID() {
