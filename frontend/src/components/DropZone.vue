@@ -38,6 +38,7 @@ export default {
       progress: 0,
       successCount: 0,
       failCount: 0,
+      state: 'none',
       options: {
         headers: {
           'X-UPLOAD-UUID': this.uuid,
