@@ -92,7 +92,15 @@ class UploadControllerTest {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
 
         MockMultipartFile file = new MockMultipartFile("file", byteArrayInputStream);
-        CountDto countDto = uploadService.savePerson(file, uploadUUID);
+
+        mockMvc.perform(multipart("/api/upload")
+                .file(file)
+                .header("X-UPLOAD-UUID", uploadUUID)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code").value(Codes.S0000.code))
+                .andExpect(jsonPath("message").value(Codes.S0000.desc));
 
 
         mockMvc.perform(multipart("/api/upload")
@@ -145,13 +153,16 @@ class UploadControllerTest {
 
         String uploadUUID = uploadService.createUploadUUID();
 
+
         byte[] bytes = Files.readAllBytes(
                 Paths.get("./src/test/resources/dataset_success.csv"));
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-
-        MockMultipartFile file = new MockMultipartFile("file", byteArrayInputStream);
-        CountDto countDto = uploadService.savePerson(file, uploadUUID);
-
+        MockMultipartFile file = new MockMultipartFile("file", bytes);
+        mockMvc.perform(multipart("/api/upload")
+                .file(file)
+                .header("X-UPLOAD-UUID", uploadUUID)
+                .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andDo(print())
+                .andExpect(status().isOk());
 
         mockMvc.perform(get("/api/inquire")
                 .header("X-UPLOAD-UUID", uploadUUID)

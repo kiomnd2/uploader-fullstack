@@ -31,8 +31,17 @@ public class UploadController {
     @PostMapping(value = "/api/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UploadResponse<CountDto>> upload(@RequestHeader("X-UPLOAD-UUID") String uuid,
-                                                           @RequestParam("file") MultipartFile file) {
+                                                           @RequestParam("file") MultipartFile file,
+                                                           @RequestParam(value = "dzchunkindex", required = false) Integer chunkIdx,
+                                                           @RequestParam(value = "dztotalchunkcount", required = false) Integer totalIdx
+    ) {
         CountDto countDto = uploadService.savePerson(file, uuid);
+
+        if ((chunkIdx == null && totalIdx == null) || chunkIdx != null && chunkIdx.equals(totalIdx-1)) {
+            countDto = countDto.clone();
+            uploadService.deleteUUID(uuid);
+        }
+
         return ResponseEntity.ok().body(UploadResponse.success(countDto));
     }
 

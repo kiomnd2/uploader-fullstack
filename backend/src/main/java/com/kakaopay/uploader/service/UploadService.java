@@ -38,7 +38,7 @@ public class UploadService {
     public CountDto savePerson(MultipartFile is, String uuid) {
         CountDto countDto = getCountDto(uuid);
 
-        List<Person> personList = new ArrayList<>();
+            List<Person> personList = new ArrayList<>();
         try(BufferedReader br = new BufferedReader(
                 new InputStreamReader(is.getInputStream(), StandardCharsets.UTF_8))) {
 
@@ -78,9 +78,7 @@ public class UploadService {
             countDto.addFailCount(personList.size());
         }
 
-        CountDto cloneCountDto = countDto.clone();
-        countManager.deleteCount(uuid);
-        return cloneCountDto;
+        return countDto;
     }
 
     public String createUploadUUID() {
@@ -96,6 +94,10 @@ public class UploadService {
         }
 
         return countDto;
+    }
+
+    public void deleteUUID(String uuid) {
+        countManager.deleteCount(uuid);
     }
 
 }
