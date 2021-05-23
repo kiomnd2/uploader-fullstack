@@ -38,7 +38,6 @@ public class UploadController {
         CountDto countDto = uploadService.savePerson(file, uuid);
 
         if ((chunkIdx == null && totalIdx == null) || chunkIdx != null && chunkIdx.equals(totalIdx-1)) {
-            countDto = countDto.clone();
             uploadService.deleteUUID(uuid);
         }
 

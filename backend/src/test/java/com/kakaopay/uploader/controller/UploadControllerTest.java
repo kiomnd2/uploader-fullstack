@@ -1,8 +1,6 @@
 package com.kakaopay.uploader.controller;
 
 import com.kakaopay.uploader.code.Codes;
-import com.kakaopay.uploader.domain.Person;
-import com.kakaopay.uploader.dto.CountDto;
 import com.kakaopay.uploader.repository.PersonRepository;
 import com.kakaopay.uploader.service.CountManager;
 import com.kakaopay.uploader.service.UploadService;
@@ -15,18 +13,16 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -135,7 +131,7 @@ class UploadControllerTest {
     }
 
     @Test
-    void request_inquire_no_count() throws Exception {
+    void request_get_no_count() throws Exception {
         String uuid = UUID.randomUUID().toString();
 
 
@@ -170,6 +166,27 @@ class UploadControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("code").value(Codes.E2000.code));
+    }
+
+    @Test
+    void request_get_count_success() throws Exception {
+
+        String uploadUUID = uploadService.createUploadUUID();
+
+        byte[] bytes = Files.readAllBytes(
+                Paths.get("./src/test/resources/dataset_success.csv"));
+        MockMultipartFile file = new MockMultipartFile("file", bytes);
+
+        uploadService.savePerson(file, uploadUUID);
+
+        mockMvc.perform(get("/api/inquire")
+                .header("X-UPLOAD-UUID", uploadUUID)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("code").value(Codes.S0000.code))
+                .andExpect(jsonPath("body.successCount").value(101))
+                .andExpect(jsonPath("body.failCount").value(0));
     }
 
 }

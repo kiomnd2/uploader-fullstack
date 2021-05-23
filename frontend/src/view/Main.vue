@@ -99,12 +99,10 @@ export default {
       this.updateCount(data.body);
       this.stopPollingTimer();
     },
-
     onUploadErrorHandler() {
       this.stopPollingTimer();
       this.clearCount();
     },
-
     onUploadCompleteHandler() {
       this.$refs.dropzone.enable();
     },
