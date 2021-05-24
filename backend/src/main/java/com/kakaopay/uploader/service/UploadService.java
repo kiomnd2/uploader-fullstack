@@ -8,14 +8,10 @@ import com.kakaopay.uploader.util.ValidateUtil;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.UnexpectedRollbackException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
@@ -38,7 +34,7 @@ public class UploadService {
     public CountDto savePerson(MultipartFile is, String uuid) {
         CountDto countDto = getCountDto(uuid);
 
-            List<Person> personList = new ArrayList<>();
+        List<Person> personList = new ArrayList<>();
         try(BufferedReader br = new BufferedReader(
                 new InputStreamReader(is.getInputStream(), StandardCharsets.UTF_8))) {
 
@@ -59,7 +55,7 @@ public class UploadService {
 
                     try {
                         if (personList.size() % 100 == 0) {
-                            personRepository.saveAll(personList);
+                            personRepository.batchInsert(personList);
                             countDto.addSuccessCount(personList.size());
                             personList.clear();
                         }
@@ -70,7 +66,7 @@ public class UploadService {
                 }
             }
             // 나머지 데이터 insert
-            personRepository.saveAll(personList);
+            personRepository.batchInsert(personList);
             countDto.addSuccessCount(personList.size());
         } catch (IOException e) {
             throw new InvalidRequestException();

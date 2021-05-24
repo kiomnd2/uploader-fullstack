@@ -5,14 +5,18 @@ import com.kakaopay.uploader.repository.PersonRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@AutoConfigureTestDatabase
+@ActiveProfiles("test")
 @SpringBootTest
 class UploadServiceTest {
 
@@ -27,7 +31,7 @@ class UploadServiceTest {
 
     @BeforeEach
     void beforeEach() {
-        personRepository.deleteAllInBatch();
+        personRepository.deleteAll();
         countManager.clear();
     }
 
