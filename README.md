@@ -3,6 +3,7 @@
 ## 0. 빌드 및 실행
 ~~~
 $ cd front-end
+$ npm install
 $ npm run build
 
 // jar build
