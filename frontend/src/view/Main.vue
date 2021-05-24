@@ -44,7 +44,7 @@ export default {
         url: '/api/upload',
         thumbnailWidth: 150,
         chunking: true,
-        chunkSize: 100000,
+        chunkSize: 1000000,
         maxFilesize: 10,
         maxFiles: 1,
         parallelUploads: 1,
