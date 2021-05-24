@@ -32,6 +32,10 @@ public class UploadController {
     private final UploadService uploadService;
 
 
+    /**
+     * uuid를 발급받습니다
+     * @return uuid
+     */
     @GetMapping(value = "/api/uuid", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UploadResponse<String>> requestUUID() {
         final String uuid = uploadService.createUploadUUID();
@@ -39,6 +43,14 @@ public class UploadController {
         return ResponseEntity.ok().body(UploadResponse.success(uuid));
     }
 
+    /**
+     * 파일을 업로드 합니다
+     * @param uuid 고유 아이디
+     * @param file 파일
+     * @param chunkIdx 현재 chunk
+     * @param totalIdx 총 chunk
+     * @return CountDto
+     */
     @PostMapping(value = "/api/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UploadResponse<CountDto>> upload(
@@ -58,7 +70,11 @@ public class UploadController {
     }
 
 
-
+    /**
+     * 현재 DB 입력 정보를 리턴합니다
+     * @param uuid 고유 아이디
+     * @return CountDto
+     */
     @GetMapping(value = "/api/inquire")
     public ResponseEntity<UploadResponse<CountDto>> inquireRate(@RequestHeader("X-UPLOAD-UUID") String uuid) {
         return ResponseEntity.ok().body(UploadResponse.success(uploadService.getCountDto(uuid)));

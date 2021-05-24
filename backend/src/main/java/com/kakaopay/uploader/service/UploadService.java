@@ -45,7 +45,7 @@ public class UploadService {
      * 파일 정보를 DB에 업데이트 합니다.
      * @param uuid 고유 아이디
      * @param file 파일
-     * @return
+     * @return CountDto
      */
     @Transactional
     public CountDto savePerson(String uuid, File file) {
@@ -99,7 +99,7 @@ public class UploadService {
      * 청크 파일일 경우 파일을 합칩니다.
      * @param uuid 고유 아이디
      * @param file 업로드된 파일
-     * @return
+     * @return file
      */
     public File combineChuck(String uuid, MultipartFile file) {
         final Path copyLocation = Paths.get(uploadDir + File.separator + uuid.trim());
@@ -124,7 +124,7 @@ public class UploadService {
 
     /**
      * uuid를 기준으로 Count 정보를 담은 객체를 반환합니다
-     * @param uuid
+     * @param uuid 고유아이디
      * @return CountDto
      */
     public CountDto getCountDto(String uuid) {
@@ -137,7 +137,7 @@ public class UploadService {
 
     /**
      * uuid를 제거합니다
-     * @param uuid
+     * @param uuid 고유아이디
      */
     public void deleteUUID(String uuid) {
         countManager.deleteCount(uuid);
