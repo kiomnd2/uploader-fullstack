@@ -11,7 +11,7 @@ public class CountManager {
     private final ConcurrentHashMap<String, CountDto> countMap = new ConcurrentHashMap<>();
 
     public CountDto createNewCount(String uuid) {
-        CountDto countDto = new CountDto();
+        final CountDto countDto = new CountDto();
         this.countMap.put(uuid, countDto);
         return countDto;
     }

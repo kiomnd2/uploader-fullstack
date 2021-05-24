@@ -1,8 +1,11 @@
 package com.kakaopay.uploader.util;
 
+import com.oracle.tools.packager.Log;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @UtilityClass
 public class ValidateUtil {
 

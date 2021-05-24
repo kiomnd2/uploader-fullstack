@@ -2,28 +2,39 @@ package com.kakaopay.uploader.controller;
 
 import com.kakaopay.uploader.dto.CountDto;
 import com.kakaopay.uploader.service.UploadService;
+import com.oracle.tools.packager.Log;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.Iterator;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin
 @RestController
 public class UploadController {
 
     private final UploadService uploadService;
 
+
     @GetMapping(value = "/api/uuid", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<UploadResponse<String>> requestUUID() {
-        String uuid = uploadService.createUploadUUID();
+        final String uuid = uploadService.createUploadUUID();
         log.debug("get UUID : {}",uuid);
         return ResponseEntity.ok().body(UploadResponse.success(uuid));
     }
@@ -35,14 +46,16 @@ public class UploadController {
                                                            @RequestParam(value = "dzchunkindex", required = false) Integer chunkIdx,
                                                            @RequestParam(value = "dztotalchunkcount", required = false) Integer totalIdx
     ) {
-        CountDto countDto = uploadService.savePerson(file, uuid);
+        final File combineFile = uploadService.combineChuck(uuid, file);
 
-        if ((chunkIdx == null && totalIdx == null) || chunkIdx != null && chunkIdx.equals(totalIdx-1)) {
-            uploadService.deleteUUID(uuid);
+        CountDto countDto = new CountDto(0,0);
+        if ((chunkIdx == null && totalIdx == null) || chunkIdx != null && chunkIdx.equals(totalIdx-1) ) {
+            countDto = uploadService.savePerson(uuid, combineFile);
         }
-
         return ResponseEntity.ok().body(UploadResponse.success(countDto));
     }
+
+
 
     @GetMapping(value = "/api/inquire")
     public ResponseEntity<UploadResponse<CountDto>> inquireRate(@RequestHeader("X-UPLOAD-UUID") String uuid) {

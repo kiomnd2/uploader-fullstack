@@ -19,7 +19,6 @@ public class UploadResponse<T> {
         return new UploadResponse<>(Codes.S0000.code, Codes.S0000.desc, body);
     }
 
-
     public static <T> UploadResponse<T> fail(T body) {
         return new UploadResponse<>(Codes.E2000.code, Codes.E2000.desc, body);
     }

@@ -65,8 +65,4 @@ describe('Dropzone Test', () => {
     expect(wrapper.vm.$data.interval).toEqual(-1);
   });
 
-  it('file upload Test', () => {
-    axios.get = jest.fn().mockResolvedValue();
-    VueDropzone.processQueue = jest.fn();
-  });
 });

@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -25,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ActiveProfiles("test")
 @SpringBootTest
 @AutoConfigureTestDatabase
 @AutoConfigureMockMvc
@@ -169,25 +171,5 @@ class UploadControllerTest {
                 .andExpect(jsonPath("code").value(Codes.E2000.code));
     }
 
-    @Test
-    void request_get_count_success() throws Exception {
-
-        String uploadUUID = uploadService.createUploadUUID();
-
-        byte[] bytes = Files.readAllBytes(
-                Paths.get("./src/test/resources/dataset_success.csv"));
-        MockMultipartFile file = new MockMultipartFile("file", bytes);
-
-        uploadService.savePerson(file, uploadUUID);
-
-        mockMvc.perform(get("/api/inquire")
-                .header("X-UPLOAD-UUID", uploadUUID)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("code").value(Codes.S0000.code))
-                .andExpect(jsonPath("body.successCount").value(101))
-                .andExpect(jsonPath("body.failCount").value(0));
-    }
 
 }

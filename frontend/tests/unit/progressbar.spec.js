@@ -24,10 +24,10 @@ describe('Dropzone.vue Test', () => {
   it('두번째 프로그레스의 value는 각각 successCount 와 failCount 값과 같다', () => {
     expect(
       wrapper.findAll('b-progress b-progress-bar').at(0).attributes('value'),
-    ).toBe(successCount);
+    ).toBe('100');
     expect(
       wrapper.findAll('b-progress b-progress-bar').at(1).attributes('value'),
-    ).toBe(failCount);
+    ).toBe('5');
   });
 
   it('maxCount 는 progress 와 같은 비율이다', () => {

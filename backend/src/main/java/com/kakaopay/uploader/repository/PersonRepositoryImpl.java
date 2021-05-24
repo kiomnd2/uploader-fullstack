@@ -2,13 +2,11 @@ package com.kakaopay.uploader.repository;
 
 import com.kakaopay.uploader.domain.Person;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -20,7 +18,7 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public void batchInsert(List<Person> list) {
-        String sql = "insert into Person (id, firstname, lastname, email) values (?,?,?,?)".trim();
+        final String sql = "insert into Person (id, firstname, lastname, email) values (?,?,?,?)".trim();
 
         jdbcTemplate.batchUpdate(sql, new BatchPreparedStatementSetter() {
             @Override
@@ -40,14 +38,14 @@ public class PersonRepositoryImpl implements PersonRepository {
 
     @Override
     public boolean deleteAll() {
-        String sql = "delete from Person".trim();
+        final String sql = "delete from Person".trim();
         jdbcTemplate.update(sql);
         return false;
     }
 
     @Override
     public int count() {
-        String sql = "select count(1) from Person";
+        final String sql = "select count(1) from Person";
         return jdbcTemplate.queryForObject(sql, int.class);
     }
 }

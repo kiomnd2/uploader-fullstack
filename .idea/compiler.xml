@@ -8,9 +8,9 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="file-upload" />
-        <module name="uploader-fullstack" />
-        <module name="uploader" />
         <module name="backend" />
+        <module name="uploader" />
+        <module name="uploader-fullstack" />
       </profile>
     </annotationProcessing>
   </component>

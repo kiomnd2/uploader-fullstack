@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -49,14 +50,26 @@ class UploadServiceTest {
     void savePersonTest() throws Exception {
         String uploadUUID = uploadService.createUploadUUID();
 
-        byte[] bytes = Files.readAllBytes(
-                Paths.get("./src/test/resources/dataset_success.csv"));
-        MockMultipartFile file = new MockMultipartFile("file", bytes);
+        File file = Paths.get("./src/test/resources/dataset_success.csv").toFile();
 
-        CountDto countDto = uploadService.savePerson(file, uploadUUID);
+        CountDto countDto = uploadService.savePerson(uploadUUID, file);
 
         assertThat(countDto).isNotNull();
         assertThat(countDto.getSuccessCount()).isEqualTo(101);
         assertThat(countDto.getFailCount()).isEqualTo(0);
+    }
+
+    @Test
+    void combineChunkTest() throws Exception {
+        String uploadUUID = uploadService.createUploadUUID();
+
+
+        byte[] bytes = Files.readAllBytes(Paths.get("./src/test/resources/dataset_success.csv"));
+
+        File file = uploadService.combineChuck(uploadUUID, new MockMultipartFile("file", bytes));
+
+        assertThat(file).exists();
+        assertThat(Files.readAllBytes(file.toPath())).isEqualTo(bytes);
+
     }
 }

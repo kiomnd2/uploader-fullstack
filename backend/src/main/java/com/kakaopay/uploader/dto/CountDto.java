@@ -19,5 +19,8 @@ public class CountDto{
         this.failCount += count;
     }
 
-
+    public CountDto(int successCount, int failCount) {
+        this.successCount = successCount;
+        this.failCount = failCount;
+    }
 }
