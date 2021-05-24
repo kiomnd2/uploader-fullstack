@@ -41,11 +41,13 @@ public class UploadController {
 
     @PostMapping(value = "/api/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<UploadResponse<CountDto>> upload(@RequestHeader("X-UPLOAD-UUID") String uuid,
-                                                           @RequestParam("file") MultipartFile file,
-                                                           @RequestParam(value = "dzchunkindex", required = false) Integer chunkIdx,
-                                                           @RequestParam(value = "dztotalchunkcount", required = false) Integer totalIdx
+    public ResponseEntity<UploadResponse<CountDto>> upload(
+            @RequestHeader("X-UPLOAD-UUID") String uuid,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "dzchunkindex", required = false) Integer chunkIdx,
+            @RequestParam(value = "dztotalchunkcount", required = false) Integer totalIdx
     ) {
+        // 파일을 합칩니다
         final File combineFile = uploadService.combineChuck(uuid, file);
 
         CountDto countDto = new CountDto(0,0);
