@@ -77,6 +77,7 @@ public class UploadService {
                     }
                 } catch (DataIntegrityViolationException e) {
                     countDto.addFailCount(personList.size());
+                    log.info("FAilED List :: {}" , personList.toString());
                     personList.clear();
                 }
             }
@@ -87,6 +88,7 @@ public class UploadService {
             throw new InvalidFileException();
         } catch (DataIntegrityViolationException e) {
             countDto.addFailCount(personList.size());
+            log.info("FAilED List :: {}" , personList.toString());
         }
         deleteUUID(uuid);
 
@@ -100,6 +102,7 @@ public class UploadService {
      * @return file
      */
     public File combineChuck(String uuid, MultipartFile file) {
+        log.debug("uuid {}", uuid);
         final Path copyLocation = Paths.get(uploadDir + File.separator + uuid.trim());
         try(FileOutputStream fileOutputStream = new FileOutputStream(copyLocation.toFile(), true)) {
             fileOutputStream.write(file.getBytes());
