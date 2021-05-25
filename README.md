@@ -43,6 +43,8 @@ $ java -jar ./target/uploader-1.0.jar
     * 일정 주기로 클라이언트에서 폴링 발생
     * 폴링에 대한 리턴값으로 count정보를 리턴
  
+![이미지](img/img_0001.png)
+
 ## 4.API
 ### 4.1 UUID 발급
 
